@@ -36,6 +36,7 @@ public class BaseRepository
 
     private IDbConnection CreateConnection()
     {
-        return new SQLiteConnection("Data Source = DAL/DB/social_network.db; Version = 3");
+        var dbPath = Path.Combine(AppContext.BaseDirectory, "DAL/DB/social_network.db");
+        return new SQLiteConnection($"Data Source={dbPath}; Version=3;");
     }
 }
