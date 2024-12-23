@@ -1,56 +1,42 @@
-using System.ComponentModel.DataAnnotations;
-using SocialNetwork.BLL.Models;
 using SocialNetwork.BLL.Exceptions;
+using SocialNetwork.BLL.Models;
 using SocialNetwork.DAL.Entities;
 using SocialNetwork.DAL.Repositories;
+using System.ComponentModel.DataAnnotations;
 
 namespace SocialNetwork.BLL.Services;
-
 public class UserService
 {
+    MessageService messageService;
     IUserRepository userRepository;
-
     public UserService()
     {
         userRepository = new UserRepository();
+        messageService = new MessageService();
     }
 
     public void Register(UserRegistrationData userRegistrationData)
     {
         if (String.IsNullOrEmpty(userRegistrationData.FirstName))
-        {
-            throw new ArgumentNullException("First name is required");
-        }
+            throw new ArgumentNullException();
 
         if (String.IsNullOrEmpty(userRegistrationData.LastName))
-        {
-            throw new ArgumentNullException("Last name is required");
-        }
+            throw new ArgumentNullException();
 
         if (String.IsNullOrEmpty(userRegistrationData.Password))
-        {
-            throw new ArgumentNullException("Password is required");
-        }
+            throw new ArgumentNullException();
 
         if (String.IsNullOrEmpty(userRegistrationData.Email))
-        {
-            throw new ArgumentNullException("Email is required");
-        }
+            throw new ArgumentNullException();
 
         if (userRegistrationData.Password.Length < 8)
-        {
-            throw new ArgumentException("Password must be at least 8 characters long");
-        }
+            throw new ArgumentNullException();
 
         if (!new EmailAddressAttribute().IsValid(userRegistrationData.Email))
-        {
-            throw new ArgumentException("Email is not valid");
-        }
+            throw new ArgumentNullException();
 
         if (userRepository.FindByEmail(userRegistrationData.Email) != null)
-        {
-            throw new ArgumentException("User with this email already exists");
-        }
+            throw new ArgumentNullException();
 
         var userEntity = new UserEntity()
         {
@@ -61,9 +47,8 @@ public class UserService
         };
 
         if (this.userRepository.Create(userEntity) == 0)
-        {
-            throw new Exception("User was not created");
-        }
+            throw new Exception();
+
     }
 
     public User Authenticate(UserAuthenticationData userAuthenticationData)
@@ -80,6 +65,14 @@ public class UserService
     public User FindByEmail(string email)
     {
         var findUserEntity = userRepository.FindByEmail(email);
+        if (findUserEntity is null) throw new UserNotFoundException();
+
+        return ConstructUserModel(findUserEntity);
+    }
+
+    public User FindById(int id)
+    {
+        var findUserEntity = userRepository.FindById(id);
         if (findUserEntity is null) throw new UserNotFoundException();
 
         return ConstructUserModel(findUserEntity);
@@ -105,6 +98,10 @@ public class UserService
 
     private User ConstructUserModel(UserEntity userEntity)
     {
+        var incomingMessages = messageService.GetIncomingMessagesByUserId(userEntity.id);
+
+        var outgoingMessages = messageService.GetOutcomingMessagesByUserId(userEntity.id);
+
         return new User(userEntity.id,
                         userEntity.firstname,
                         userEntity.lastname,
@@ -112,6 +109,9 @@ public class UserService
                         userEntity.email,
                         userEntity.photo,
                         userEntity.favorite_movie,
-                        userEntity.favorite_book);
+                        userEntity.favorite_book,
+                        incomingMessages,
+                        outgoingMessages
+                        );
     }
 }
