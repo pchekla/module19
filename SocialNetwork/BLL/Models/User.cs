@@ -13,6 +13,9 @@ public class User
     public IEnumerable<Message> IncomingMessages { get; }
     public IEnumerable<Message> OutgoingMessages { get; }
 
+    public IEnumerable<User> Friends { get; }
+
+
     public User(
         int id, 
         string firstName, 
@@ -23,7 +26,8 @@ public class User
         string favoriteMovie, 
         string favoriteBook,
         IEnumerable<Message> incomingMessages,
-        IEnumerable<Message> outgoingMessages
+        IEnumerable<Message> outgoingMessages,
+        IEnumerable<User> friends
         )
     {
         this.Id = id;
@@ -36,5 +40,6 @@ public class User
         this.FavoriteBook = favoriteBook;
         this.IncomingMessages = incomingMessages;
         this.OutgoingMessages = outgoingMessages;
+        this.Friends = friends;
     }
 }
