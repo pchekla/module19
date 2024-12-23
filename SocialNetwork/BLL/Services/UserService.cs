@@ -13,9 +13,9 @@ public class UserService
 
     public UserService()
     {
+        messageService = new MessageService();
         userRepository = new UserRepository();
         friendRepository = new FriendRepository();
-        messageService = new MessageService();
     }
 
     public void Register(UserRegistrationData userRegistrationData)
